@@ -7,9 +7,39 @@ class HangpersonGame
 
   # def initialize()
   # end
+  attr_accessor :word, :guesses, :wrong_guesses
   
   def initialize(word)
-    @word = word
+    @word = word.downcase
+    @guesses = ''
+    @wrong_guesses = ''
+  end
+  
+  def guess(char)
+    is_abc = (char =~ /^[A-Z]$/i)
+    throw ArgumentError unless is_abc
+    regex = Regexp.new(char.downcase)
+    letters_guessed = @guesses + @wrong_guesses
+    if (letters_guessed =~ regex)
+      return false
+    end
+    if (@word =~ regex)
+      @guesses.concat(char)
+    else
+      @wrong_guesses.concat(char)
+    end
+    return true
+  end
+  
+  def word_with_guesses
+    regex = (guesses.empty?) ? /[a-z]/i : Regexp.new("[^" + @guesses + "]")
+    return @word.gsub(regex, "-" )
+  end
+  
+  def check_win_or_lose
+    return :win if @word.eql?(word_with_guesses())
+    return :lose if ((@guesses.length + @wrong_guesses.length) >= 7)
+    return :play
   end
 
   # You can test it by running $ bundle exec irb -I. -r app.rb
